@@ -34,7 +34,7 @@
 
   (define error
     (lambda (msg)
-      (condition (make-message-condition msg))))
+      (make-message-condition msg)))
 
   (define errorWithCause
     (lambda (msg)
