@@ -9,11 +9,10 @@
           stackImpl
           throwException
           catchException)
-  (import (only (rnrs base) define lambda if for-each)
+  (import (only (rnrs base) define lambda if)
           (only (rnrs conditions)
             condition
             condition-message
-            simple-conditions
             make-message-condition
             condition?
             message-condition?)
@@ -26,10 +25,7 @@
     (lambda (err)
       (if (condition? err)
         (call-with-string-output-port
-          (lambda (p)
-            (for-each
-              (lambda (e) (display-condition e p) (newline p) (newline p))
-              (simple-conditions err))))
+          (lambda (p) (display-condition err p)))
         (format "Exception: ~s" err))))
 
   (define error
