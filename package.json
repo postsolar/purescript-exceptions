@@ -1,6 +1,6 @@
 {
   "private": true,
   "scripts": {
-    "build": "eslint src && pulp build -- --censor-lib --strict"
+    "build": "spago build"
   }
 }
