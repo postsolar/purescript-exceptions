@@ -9,53 +9,45 @@
           stackImpl
           throwException
           catchException)
-  (import (only (rnrs base) define lambda cond else quote)
-          (only (rnrs conditions) define-condition-type &condition condition? message-condition? condition-message)
+  (import (only (rnrs base) define lambda if for-each)
+          (only (rnrs conditions)
+            condition
+            condition-message
+            simple-conditions
+            make-message-condition
+            condition?
+            message-condition?)
           (only (rnrs io ports) call-with-string-output-port)
+          (only (rnrs io simple) newline)
           (only (rnrs exceptions) with-exception-handler raise-continuable)
           (only (chezscheme) format call/cc display-condition))
 
-  ; ----- Internal condition specific to Effect.Exception
-  ; Effect.Exception can catch other exceptions as well but
-  ; makes a distinction between exceptions thrown via its interface 
-  ; and all other exceptions so as to implement `errorWithCause` (parent exceptions).
-  (define-condition-type
-    &purescm-effect-exception
-    &condition
-    make-purescm-effect-exception
-    purescm-effect-exception? 
-    (message purescm-effect-exception-message)
-    (cause purescm-effect-exception-cause))
-
-  ; ----- Exported FFI implementation
-
   (define showErrorImpl
     (lambda (err)
-      (cond
-        ((condition? err)
-          (call-with-string-output-port
-            (lambda (p) (display-condition err p))))
-        (else
-          (format "Exception: ~s" err)))))
+      (if (condition? err)
+        (call-with-string-output-port
+          (lambda (p)
+            (for-each
+              (lambda (e) (display-condition e p) (newline p) (newline p))
+              (simple-conditions err))))
+        (format "Exception: ~s" err))))
 
   (define error
     (lambda (msg)
-      (make-purescm-effect-exception msg '())))
+      (condition (make-message-condition msg))))
 
   (define errorWithCause
     (lambda (msg)
       (lambda (cause)
-        (make-purescm-effect-exception msg cause))))
+        (condition
+          (make-message-condition msg)
+          cause))))
 
   (define message
     (lambda (e)
-      (cond
-        ((purescm-effect-exception? e)
-          (purescm-effect-exception-message e))
-        ((message-condition? e)
-          (condition-message e))
-        (else
-          (format "Exception: ~s" e)))))
+      (if (message-condition? e)
+        (condition-message e)
+        (format "Exception: ~s" e))))
 
   (define name
     (lambda (e)
