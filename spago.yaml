@@ -1,6 +1,5 @@
 package:
   dependencies:
-    - console
     - effect
     - either
     - maybe
