@@ -17,7 +17,6 @@
             condition?
             message-condition?)
           (only (rnrs io ports) call-with-string-output-port)
-          (only (rnrs io simple) newline)
           (only (rnrs exceptions) with-exception-handler raise-continuable)
           (only (chezscheme) format call/cc display-condition))
 
